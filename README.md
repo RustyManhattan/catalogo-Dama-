@@ -1,1 +1,539 @@
 # catalogo-Dama-
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cinturones Félix Vega — Catálogo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #846f6f;
+      --card-bg: #3f3232;
+      --accent: #b88b3a; /* dorado suave */
+      --muted: #ffffff;
+      --radius: 15px;
+      --shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      --shadow-strong: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(180deg, var(--bg), #ffffff);
+      color:#ffffff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding-bottom:100px; /* espacio para burbuja */
+      overflow-x: hidden; /* prevenir scroll horizontal en modo swipe */
+    }
+
+    header{
+      text-align:center;
+      padding:22px 16px 10px;
+      position:sticky;
+      top:0;
+      backdrop-filter: blur(6px);
+      z-index:10;
+      background: rgba(0, 0, 0, 0.7);
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    
+    }
+    .title{
+      font-size:30px;
+      font-weight:700;
+      letter-spacing:0.6px;
+      
+    }
+    .subline{
+      height:6px;
+      width:100px;
+      margin:10px auto 0;
+      background: linear-gradient(20deg, var(--accent), #ffffff);
+      border-radius:4px;
+      opacity:0.95;
+    }
+
+    main{
+      max-width:900px;
+      margin:18px auto;
+      padding:0 14px;
+      min-height: calc(100vh - 100px); /* Ajuste mínimo de altura para que swipe funcione */
+      display: block; /* Restablecer a block por defecto */
+    }
+
+    /* Estilos del GRID para modo SCROLL (por defecto) */
+    .grid{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      padding-bottom:40px;
+      transition: transform 300ms ease-out; 
+    }
+
+    .card{
+      background:var(--card-bg);
+      border-radius:14px;
+      padding:12px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      transform-origin:center;
+      flex-shrink:0; 
+      width:100%; 
+      transform: none; 
+      opacity: 1; 
+    }
+    
+    /* === ESTILOS ESPECÍFICOS para modo SWIPE (Carrusel) === */
+    .view-swipe {
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .view-swipe main {
+        max-width: none;
+        padding: 0;
+        height: 100%;
+        margin: 0;
+        display: flex; /* Flexbox para contener el header/controls y el grid */
+        flex-direction: column;
+    }
+
+    .view-swipe .grid {
+        flex-direction: row;
+        gap: 0;
+        scroll-snap-type: x mandatory;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        flex-grow: 1; /* Ocupar el espacio restante */
+        padding-bottom: 0;
+        margin: 0;
+        align-items: center; /* Centrar las tarjetas verticalmente */
+    }
+    
+    .view-swipe .controls {
+        flex-shrink: 0; /* Asegurar que los controles no se colapsen */
+    }
+    
+    .view-swipe .header {
+        position: sticky;
+        top: 0;
+        flex-shrink: 0;
+    }
+
+    .view-swipe .card {
+        scroll-snap-align: center;
+        width: 85vw; /* *** A U S T E R I D A D *** Ancho más responsivo para móviles */
+        max-width: 400px; /* Limitar el ancho en pantallas grandes */
+        height: auto;
+        min-height: 400px; /* Altura mínima para asegurar contenido */
+        margin: 0 7.5vw; /* Margen para centrar la tarjeta */
+        display: block; 
+        padding: 18px;
+        box-shadow: var(--shadow-strong); /* Sombra más fuerte para destacar */
+    }
+    
+    .view-swipe .card:first-child { margin-left: 15vw; } /* Padding extra inicial */
+    .view-swipe .card:last-child { margin-right: 15vw; } /* Padding extra final */
+
+
+    .view-swipe .card .thumb {
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%; /* Truco para imagen cuadrada y responsiva */
+        position: relative;
+        flex: none;
+    }
+
+    .view-swipe .card .thumb img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .view-swipe .card .info {
+        padding-top: 12px;
+    }
+
+    /* FIX: Botón de WhatsApp - ahora siempre visible */
+    /* Se remueve el 'display: none !important;' de la versión anterior */
+    .view-swipe .whatsapp {
+        bottom: 12px;
+        right: 12px;
+        z-index: 99999; 
+    }
+
+
+    /* Reset de animaciones en modo swipe */
+    .view-swipe .animate-in {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+    /* === FIN ESTILOS SWIPE === */
+
+    .thumb{
+      flex:0 0 120px;
+      height:120px;
+      border-radius:15px;
+      overflow:hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border: 6px solid #fff; /* separación visual */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      border-radius:15px; /* borde de 15px */
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12); /* sombra gris */
+      display:block;
+      transform: scale(0.98);
+      transition: transform 450ms cubic-bezier(.2,.9,.2,1), opacity 450ms;
+      will-change: transform, opacity;
+    }
+
+    .info{
+      flex:1 1 auto;
+      min-width:0;
+    }
+
+    h3{
+      margin:2px 0 6px;
+      font-size:16px;
+      line-height:1.1;
+      font-weight:600;
+    }
+    p.description{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    /* animations (solo se usan en modo SCROLL) */
+    .animate-in{
+      opacity:0;
+      transform: translateY(18px) scale(0.995);
+      transition: opacity 550ms ease, transform 550ms cubic-bezier(.2,.9,.2,1);
+    }
+    .in-view{
+      opacity:1;
+      transform: translateY(0) scale(1);
+    }
+    .img-zoom.in-view img{ transform: scale(1.02); }
+
+    /* responsive tweaks */
+    @media (max-width:520px){
+      .thumb{flex:0 0 110px;height:110px}
+      header{padding-top:14px;padding-bottom:8px}
+      .title{font-size:18px}
+      .card{padding:10px}
+      
+      /* Ajuste adicional para swipe en pantallas muy pequeñas */
+      .view-swipe .card {
+          width: 90vw;
+          margin: 0 5vw;
+      }
+      .view-swipe .card:first-child { margin-left: 10vw; }
+      .view-swipe .card:last-child { margin-right: 10vw; }
+    }
+
+    /* whatsapp bubble */
+    .whatsapp{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+      text-decoration:none;
+      background:linear-gradient(180deg,#25D366,#128C7E);
+      padding:12px 14px;
+      border-radius:999px;
+      box-shadow:var(--shadow-strong);
+      transform-origin:center;
+      animation: pulse 2100ms infinite;
+    }
+    /* El resto de estilos de whatsapp son correctos */
+    .whatsapp .bubble{
+      width:44px;height:44px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;
+    }
+    .whatsapp svg{width:22px;height:22px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));}
+    @keyframes pulse{
+      0%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-6px) scale(1.03)}
+      100%{transform:translateY(0) scale(1)}
+    }
+
+    /* subtle footer */
+    footer{ 
+        text-align:center;
+        color:var(--muted);
+        font-size:12px;
+        padding:12px 6px;
+        flex-shrink: 0; /* Para el modo swipe */
+    }
+
+    /* helper for editable control & RADIO BUTTONS */
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px}
+    .btn{background:#111;color:#fff;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px}
+    .muted-small{font-size:12px;color:var(--muted)}
+    
+    /* Estilos del Switch/Radio */
+    .view-switch {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 4px;
+        gap: 4px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .view-switch label {
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 250ms ease;
+        line-height: 1.2;
+    }
+
+    .view-switch input[type="radio"] {
+        display: none;
+    }
+
+    .view-switch input[type="radio"]:checked + label {
+        background: var(--card-bg); 
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">Cinturones Félix Vega</div>
+    <div class="subline" aria-hidden="true"></div>
+  </header>
+
+  <main>
+    <div class="controls muted-small">
+      <div class="view-switch">
+          <input type="radio" id="view-scroll" name="view-mode" value="scroll" checked>
+          <label for="view-scroll">Ver en lista</label>
+          <input type="radio" id="view-swipe" name="view-mode" value="swipe">
+          <label for="view-swipe">Ver uno por uno</label>
+      </div>
+    </div>
+    
+    <div class="controls muted-small">
+    <code>productos</code> 
+    </div>
+
+    <div class="grid" id="catalog">
+      </div>
+
+    <footer>
+      Catálogo móvil — Cinturones Félix Vega
+    </footer>
+  </main>
+
+  <a id="waBubble" class="whatsapp" href="https://wa.me/5527842040" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
+    <div class="bubble" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="white" aria-hidden="true" focusable="false">
+        <path d="M20.52 3.48A11.9 11.9 0 0012 .5 11.91 11.91 0 003.48 3.48 11.9 11.9 0 00.5 12c0 2.01.52 3.95 1.48 5.66L.04 23.5l5.04-1.31A11.93 11.93 0 0012 23.5c2.01 0 3.95-.52 5.66-1.48A11.9 11.9 0 0023.5 12a11.91 11.91 0 00-1.0-4.52zM12 21.5c-1.72 0-3.4-.44-4.86-1.27l-.34-.19-3.0.78.78-3.01-.21-.34A9.5 9.5 0 012.5 12c0-5.24 4.26-9.5 9.5-9.5S21.5 6.76 21.5 12 17.24 21.5 12 21.5z"/>
+        <path d="M17.1 14.3c-.3-.15-1.78-.86-2.05-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.95 1.16-.17.2-.34.23-.63.08-.3-.15-1.27-.47-2.42-1.49-.9-.8-1.5-1.78-1.67-2.08-.17-.3-.02-.46.13-.61.13-.12.3-.34.45-.51.15-.17.2-.28.3-.47.1-.2.05-.37-.02-.52-.08-.15-.67-1.63-.92-2.24-.24-.59-.49-.51-.67-.52-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.03 1.01-1.03 2.46 0 1.44 1.06 2.84 1.21 3.04.15.2 2.09 3.35 5.06 4.69 3.0 1.35 3.0 0.9 3.56 0.84.56-.06 1.78-.72 2.03-1.42.25-.7.25-1.3.17-1.42-.08-.12-.28-.2-.58-.35z"/>
+      </svg>
+    </div>
+    <div class="muted-small">Contactar</div>
+  </a>
+
+  <script>
+    /**
+     * EDITAR AQUÍ: Lista de productos. Cambia las rutas de imagen (o usa URLs absolutas)
+     */
+    const productos = [
+      {id:1, img:'images/cinturon1.jpg', title:'Cinturón Clásico Piel Negra', desc:'Hecho a mano en piel vacuna. Hebilla acero inoxidable. Ancho 3.5 cm. Ideal para uso diario.', available:true},
+      {id:2, img:'images/cinturon2.jpg', title:'Cinturón Café Con Hebilla Dorada', desc:'Piel curtida, acabado vintage, perfecto con camisas blancas. Ancho 3.8 cm.', available:true},
+      {id:3, img:'images/cinturon3.jpg', title:'Cinturón Trenzado Stretch', desc:'Comodidad y estilo; se adapta a la cintura. Material resistente y fácil de limpiar.', available:false},
+      {id:4, img:'images/cinturon4.jpg', title:'Cinturón Ejecutivo Slim', desc:'Perfil delgado para pantalones de vestir. Hebilla minimalista.', available:true},
+      {id:1, img:'images/cinturon1.jpg', title:'Cinturón Clásico Piel Negra', desc:'Hecho a mano en piel vacuna. Hebilla acero inoxidable. Ancho 3.5 cm. Ideal para uso diario.', available:true},
+      {id:2, img:'images/cinturon2.jpg', title:'Cinturón Café Con Hebilla Dorada', desc:'Piel curtida, acabado vintage, perfecto con camisas blancas. Ancho 3.8 cm.', available:true},
+      {id:3, img:'images/cinturon3.jpg', title:'Cinturón Trenzado Stretch', desc:'Comodidad y estilo; se adapta a la cintura. Material resistente y fácil de limpiar.', available:false},
+      {id:4, img:'images/cinturon4.jpg', title:'Cinturón Ejecutivo Slim', desc:'Perfil delgado para pantalones de vestir. Hebilla minimalista.', available:true},
+      {id:1, img:'images/cinturon1.jpg', title:'Cinturón Clásico Piel Negra', desc:'Hecho a mano en piel vacuna. Hebilla acero inoxidable. Ancho 3.5 cm. Ideal para uso diario.', available:true},
+      {id:2, img:'images/cinturon2.jpg', title:'Cinturón Café Con Hebilla Dorada', desc:'Piel curtida, acabado vintage, perfecto con camisas blancas. Ancho 3.8 cm.', available:true},
+      {id:3, img:'images/cinturon3.jpg', title:'Cinturón Trenzado Stretch', desc:'Comodidad y estilo; se adapta a la cintura. Material resistente y fácil de limpiar.', available:false},
+      {id:4, img:'images/cinturon4.jpg', title:'Cinturón Ejecutivo Slim', desc:'Perfil delgado para pantalones de vestir. Hebilla minimalista.', available:true},{id:1, img:'images/cinturon1.jpg', title:'Cinturón Clásico Piel Negra', desc:'Hecho a mano en piel vacuna. Hebilla acero inoxidable. Ancho 3.5 cm. Ideal para uso diario.', available:true},
+      {id:2, img:'images/cinturon2.jpg', title:'Cinturón Café Con Hebilla Dorada', desc:'Piel curtida, acabado vintage, perfecto con camisas blancas. Ancho 3.8 cm.', available:true},
+      {id:3, img:'images/cinturon3.jpg', title:'Cinturón Trenzado Stretch', desc:'Comodidad y estilo; se adapta a la cintura. Material resistente y fácil de limpiar.', available:false},
+      {id:4, img:'images/cinturon4.jpg', title:'Cinturón Ejecutivo Slim', desc:'Perfil delgado para pantalones de vestir. Hebilla minimalista.', available:true},
+      {id:4, img:'images/cinturon4.jpg', title:'Cinturón Ejecutivo Slim', desc:'Perfil delgado para pantalones de vestir. Hebilla minimalista.', available:true},{id:1, img:'images/cinturon1.jpg', title:'Cinturón Clásico Piel Negra', desc:'Hecho a mano en piel vacuna. Hebilla acero inoxidable. Ancho 3.5 cm. Ideal para uso diario.', available:true},
+      {id:2, img:'images/cinturon2.jpg', title:'Cinturón Café Con Hebilla Dorada', desc:'Piel curtida, acabado vintage, perfecto con camisas blancas. Ancho 3.8 cm.', available:true},
+      {id:3, img:'images/cinturon3.jpg', title:'Cinturón Trenzado Stretch', desc:'Comodidad y estilo; se adapta a la cintura. Material resistente y fácil de limpiar.', available:false},
+      {id:4, img:'images/cinturon4.jpg', title:'Cinturón Ejecutivo Slim', desc:'Perfil delgado para pantalones de vestir. Hebilla minimalista.', available:true},
+    ];
+    
+
+
+    const catalog = document.getElementById('catalog');
+    let io = null; // Variable para el IntersectionObserver
+
+    function mkCard(product, index){
+      const card = document.createElement('article');
+      card.className = 'card animate-in img-zoom';
+      card.style.transitionDelay = (index * 80) + 'ms';
+
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.alt = product.title || 'Cinturón';
+      img.src = product.img; // editable
+
+      thumb.appendChild(img);
+
+      const info = document.createElement('div');
+      info.className = 'info';
+
+      const h = document.createElement('h3');
+      h.textContent = product.title + (product.available ? '' : ' — Agotado');
+
+      const p = document.createElement('p');
+      p.className = 'description';
+      p.textContent = product.desc;
+
+      info.appendChild(h);
+      info.appendChild(p);
+
+      card.appendChild(thumb);
+      card.appendChild(info);
+
+      // click para ver en grande (opcional)
+      card.addEventListener('click', ()=> openLightbox(product));
+
+      return card;
+    }
+
+    function render(){
+      catalog.innerHTML = '';
+      productos.forEach((p,i)=> catalog.appendChild(mkCard(p,i)));
+      
+      const currentMode = localStorage.getItem('catalogViewMode') || 'scroll';
+
+      // Habilitar/Deshabilitar animaciones y Observer
+      if (currentMode === 'scroll') {
+          initObserver();
+      } else {
+          // Si estamos en modo swipe, desactivamos el observer
+          if (io) {
+              io.disconnect();
+              io = null;
+          }
+          // Quitar clases de animación en modo swipe (aunque el CSS ya lo hace, esto es más seguro)
+          document.querySelectorAll('.animate-in').forEach(el => el.classList.remove('animate-in', 'in-view'));
+      }
+    }
+
+    function initObserver(){
+      if(io){ io.disconnect(); } 
+      
+      const items = document.querySelectorAll('.animate-in');
+      io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            entry.target.classList.add('in-view');
+          }
+        });
+      },{threshold:0.15});
+
+      items.forEach(it=> io.observe(it));
+    }
+
+    // Lightbox simple (imagen grande)
+    function openLightbox(product){
+      const overlay = document.createElement('div');
+      overlay.style.position='fixed';overlay.style.inset=0;overlay.style.background='rgba(0,0,0,0.7)';overlay.style.display='flex';overlay.style.alignItems='center';overlay.style.justifyContent='center';overlay.style.zIndex=99999;
+      overlay.addEventListener('click',()=> overlay.remove());
+
+      const box = document.createElement('div');
+      box.style.maxWidth='94%';box.style.maxHeight='86%';box.style.borderRadius='12px';box.style.overflow='hidden';box.style.boxShadow='0 20px 60px rgba(0,0,0,0.6)';box.style.background='#fff';
+
+      const img = document.createElement('img');
+      img.src = product.img; img.alt = product.title; img.style.display='block'; img.style.width='100%'; img.style.height='auto';
+
+      const caption = document.createElement('div');
+      caption.style.padding='12px';caption.style.fontSize='14px';caption.style.color='#333';caption.textContent = product.title + (product.available ? '' : ' — Agotado') + ' — ' + product.desc;
+
+      box.appendChild(img); box.appendChild(caption); overlay.appendChild(box);
+      document.body.appendChild(overlay);
+    }
+    
+    /**
+     * Lógica para el cambio de modo de vista (Scroll/Swipe)
+     */
+    function changeViewMode(mode) {
+        // Guardar la preferencia
+        localStorage.setItem('catalogViewMode', mode);
+
+        // Actualizar la clase del body para aplicar los estilos CSS
+        document.body.className = '';
+        document.body.classList.add('view-' + mode);
+        
+        // Renderizar para aplicar o desactivar animaciones según el modo
+        render();
+
+        // Asegurar que el radio button correcto esté marcado
+        document.getElementById('view-' + mode).checked = true;
+    }
+
+    // Detección inicial: Detectar y aplicar el modo guardado, o usar 'scroll' por defecto
+    const savedMode = localStorage.getItem('catalogViewMode') || 'scroll';
+    document.body.classList.add('view-' + savedMode);
+    
+    // Inicializar listeners de los radio buttons
+    document.querySelectorAll('input[name="view-mode"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            changeViewMode(e.target.value);
+        });
+    });
+
+    // Marcar la opción guardada al cargar
+    document.getElementById('view-' + savedMode).checked = true;
+
+
+    // Inicial render
+    render();
+
+    // Atajo: editar numero de WhatsApp
+    (function(){
+      const wa = document.getElementById('waBubble');
+      // wa.href = 'https://wa.me/521NEWNUMBERHERE';
+    })();
+
+    // Pequeña mejora: si una imagen falla, mostramos un placeholder elegante
+    window.addEventListener('error', (e)=>{
+      if(e.target && e.target.tagName === 'IMG'){
+        e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="%23eee"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-family="Montserrat,Arial,Helvetica" font-size="20">Imagen no disponible</text></svg>';
+      }
+    }, true);
+
+  </script>
+</body>
+</html>
